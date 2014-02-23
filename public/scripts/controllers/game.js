@@ -6,7 +6,7 @@ angular.module('app')
       $scope.opponentComplete = false;
       $scope.gameID = $location.path();
       $scope.gameID = $scope.gameID.slice($scope.gameID.lastIndexOf('/') + 1);
-      $scope.status = 0; //0 is waiting, 1 is countdown, 2 is game in progress
+      $scope.status = 0; //0 is waiting for player 2, 1 is waiting for ready, 2 is countdown, 3 is game in progress
       $scope.countDown = 5;
 
       
@@ -15,7 +15,10 @@ angular.module('app')
       }
 
       $rootScope.socket.on('gameReady', function(data){
-        $rootScope.playerTwo = true;        
+        $rootScope.playerTwo = true;
+        $timeout(function(){
+          $scope.status = 1;
+        }, 0);
       });
       
       $rootScope.socket.on('gameFull', function(data){
@@ -46,7 +49,7 @@ angular.module('app')
 
       $rootScope.socket.on('startGame', function(data) {
         console.log('starting: ', data);
-        $scope.status = 1; //countdown starts
+        $scope.status = 2; //countdown starts
         $scope.countDown = 6;
         var shortBeep = document.getElementById('shortBeep');
         var longBeep = document.getElementById('longBeep');
@@ -57,7 +60,7 @@ angular.module('app')
             shortBeep.play();
           } else {
             longBeep.play();
-            $scope.status = 2;
+            $scope.status = 3;
             $scope.$broadcast('timer-start');
             $scope.timerRunning = true; 
             player.setValue(data.boilerplate);
